@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 html,
@@ -12,11 +13,20 @@ body {
   height: 100%;
 }
 
-body {
+html {
   background:
-    radial-gradient(1200px 600px at 90% -10%, rgba(236, 186, 120, 0.35), transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, rgba(211, 127, 43, 0.18), transparent 55%),
+    radial-gradient(
+      1200px 600px at 90% -10%,
+      rgba(236, 186, 120, 0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at -10% 10%,
+      rgba(211, 127, 43, 0.18),
+      transparent 55%
+    ),
     linear-gradient(180deg, #fff8ec 0%, #fdf2df 100%);
+  background-attachment: fixed;
   color: #3d2a18;
 }
 
