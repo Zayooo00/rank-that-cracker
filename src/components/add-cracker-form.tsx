@@ -1,15 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
+import type { CrackerInput } from "@/lib/schema";
 import { fileToDataUrl } from "@/lib/storage";
 
 type Props = {
-  onAdd: (input: {
-    name: string;
-    rank: number;
-    notes: string;
-    imageDataUrl?: string;
-  }) => void;
+  onAdd: (
+    input: CrackerInput,
+  ) => Promise<{ ok: true } | { ok: false; error: string }>;
 };
 
 export function AddCrackerForm({ onAdd }: Props) {
@@ -35,19 +34,27 @@ export function AddCrackerForm({ onAdd }: Props) {
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = name.trim();
-    if (!trimmed) {
-      setError("Give your cracker a name.");
+    setError(null);
+    setBusy(true);
+    const result = await onAdd({
+      name,
+      rank,
+      notes: notes.trim() || undefined,
+      imageDataUrl,
+    });
+    setBusy(false);
+
+    if (!result.ok) {
+      setError(result.error);
       return;
     }
-    onAdd({ name: trimmed, rank, notes: notes.trim(), imageDataUrl });
+
     setName("");
     setRank(7);
     setNotes("");
     setImageDataUrl(undefined);
-    setError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -101,7 +108,8 @@ export function AddCrackerForm({ onAdd }: Props) {
 
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-cracker-700">
-              Notes <span className="font-normal text-cracker-400">(optional)</span>
+              Notes{" "}
+              <span className="font-normal text-cracker-400">(optional)</span>
             </span>
             <textarea
               value={notes}
@@ -117,11 +125,13 @@ export function AddCrackerForm({ onAdd }: Props) {
         <div className="flex flex-col items-center gap-3">
           <div className="relative h-32 w-32 overflow-hidden rounded-xl border-2 border-dashed border-cracker-300 bg-cracker-50">
             {imageDataUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={imageDataUrl}
                 alt="Preview"
-                className="h-full w-full object-cover"
+                fill
+                sizes="128px"
+                className="object-cover"
+                unoptimized
               />
             ) : (
               <div className="flex h-full items-center justify-center text-center text-xs text-cracker-400">
@@ -134,7 +144,7 @@ export function AddCrackerForm({ onAdd }: Props) {
             type="file"
             accept="image/*"
             onChange={(e) => handleFile(e.target.files?.[0])}
-            className="block w-40 text-xs text-cracker-600 file:mr-2 file:cursor-pointer file:rounded-md file:border-0 file:bg-cracker-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-cracker-800 hover:file:bg-cracker-200"
+            className="block w-50 text-xs text-cracker-600 file:mr-2 file:cursor-pointer file:rounded-md file:border-0 file:bg-cracker-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-cracker-800 hover:file:bg-cracker-200"
           />
           {imageDataUrl && (
             <button
@@ -163,7 +173,7 @@ export function AddCrackerForm({ onAdd }: Props) {
           disabled={busy}
           className="rounded-lg bg-cracker-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-cracker-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {busy ? "Processing image..." : "Add cracker"}
+          {busy ? "Saving..." : "Add cracker"}
         </button>
       </div>
     </form>

@@ -1,0 +1,187 @@
+"use client";
+
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import type { Cracker, SortDir, SortKey } from "@/lib/schema";
+import { filterAndSortCrackers } from "@/lib/sort";
+import { formatDate } from "@/lib/time";
+import { RankBadge } from "./rank-badge";
+
+type Props = {
+  crackers: readonly Cracker[];
+  onDelete: (id: string) => void;
+};
+
+export function CrackerTable({ crackers, onDelete }: Props) {
+  const [sortKey, setSortKey] = useState<SortKey>("rank");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [query, setQuery] = useState("");
+
+  const visible = useMemo(
+    () => filterAndSortCrackers(crackers, { query, sortKey, sortDir }),
+    [crackers, query, sortKey, sortDir],
+  );
+
+  function toggleSort(key: SortKey) {
+    if (key === sortKey) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "name" ? "asc" : "desc");
+    }
+  }
+
+  return (
+    <div className="rounded-2xl bg-white/80 shadow-soft ring-1 ring-cracker-200 backdrop-blur">
+      <div className="flex flex-col gap-3 border-b border-cracker-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold text-cracker-800">The rankings</h2>
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by name or notes..."
+          className="w-full rounded-lg border border-cracker-200 bg-white/90 px-3 py-1.5 text-sm text-cracker-900 placeholder:text-cracker-300 focus:border-cracker-500 focus:outline-none focus:ring-2 focus:ring-cracker-300 sm:w-72"
+        />
+      </div>
+
+      {crackers.length === 0 ? (
+        <EmptyState />
+      ) : visible.length === 0 ? (
+        <div className="p-10 text-center text-sm text-cracker-500">
+          No crackers match &ldquo;{query}&rdquo;.
+        </div>
+      ) : (
+        <div className="scrollbar-thin overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-cracker-50/60 text-xs uppercase tracking-wider text-cracker-600">
+              <tr>
+                <th className="w-20 px-4 py-3">Photo</th>
+                <SortHeader
+                  label="Name"
+                  active={sortKey === "name"}
+                  dir={sortDir}
+                  onClick={() => toggleSort("name")}
+                />
+                <SortHeader
+                  label="Rank"
+                  active={sortKey === "rank"}
+                  dir={sortDir}
+                  onClick={() => toggleSort("rank")}
+                  align="center"
+                />
+                <th className="px-4 py-3">Notes</th>
+                <SortHeader
+                  label="Added"
+                  active={sortKey === "createdAt"}
+                  dir={sortDir}
+                  onClick={() => toggleSort("createdAt")}
+                />
+                <th className="w-16 px-4 py-3 text-right">&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-cracker-100">
+              {visible.map((c) => (
+                <tr key={c.id} className="transition hover:bg-cracker-50/60">
+                  <td className="px-4 py-3">
+                    <Thumb src={c.imageDataUrl} alt={c.name} />
+                  </td>
+                  <td className="px-4 py-3 font-medium text-cracker-900">
+                    {c.name}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <RankBadge rank={c.rank} />
+                  </td>
+                  <td className="max-w-xs px-4 py-3 text-cracker-600">
+                    <span className="line-clamp-2">{c.notes || "—"}</span>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-cracker-500">
+                    {formatDate(c.createdAt)}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => onDelete(c.id)}
+                      className="rounded-md px-2 py-1 text-xs font-medium text-cracker-500 transition hover:bg-red-50 hover:text-red-600"
+                      aria-label={`Delete ${c.name}`}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SortHeader({
+  label,
+  active,
+  dir,
+  onClick,
+  align = "left",
+}: {
+  label: string;
+  active: boolean;
+  dir: SortDir;
+  onClick: () => void;
+  align?: "left" | "center";
+}) {
+  return (
+    <th
+      className={`px-4 py-3 ${align === "center" ? "text-center" : "text-left"}`}
+    >
+      <button
+        type="button"
+        onClick={onClick}
+        className={`inline-flex items-center gap-1 uppercase tracking-wider transition hover:text-cracker-800 ${
+          active ? "text-cracker-800" : "text-cracker-600"
+        }`}
+      >
+        {label}
+        <span
+          className={`text-[10px] transition ${active ? "opacity-100" : "opacity-30"}`}
+        >
+          {active && dir === "asc" ? "▲" : "▼"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
+function Thumb({ src, alt }: { src?: string; alt: string }) {
+  if (!src) {
+    return (
+      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-cracker-100 text-lg text-cracker-400">
+        ·
+      </div>
+    );
+  }
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={48}
+      height={48}
+      sizes="48px"
+      className="h-12 w-12 rounded-lg object-cover ring-1 ring-cracker-200"
+      unoptimized
+    />
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="p-12 text-center">
+      <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-cracker-100 text-2xl">
+        ·
+      </div>
+      <p className="text-sm font-medium text-cracker-700">No crackers yet.</p>
+      <p className="mt-1 text-sm text-cracker-500">
+        Use the form above to add your first.
+      </p>
+    </div>
+  );
+}

@@ -1,17 +1,13 @@
-import type { Cracker } from "@/lib/types";
+import type { Cracker } from "@/lib/schema";
 
-type Props = { crackers: Cracker[] };
+type Props = { crackers: readonly Cracker[] };
 
 export function StatsBar({ crackers }: Props) {
   const count = crackers.length;
   const avg =
-    count > 0
-      ? crackers.reduce((sum, c) => sum + c.rank, 0) / count
-      : 0;
+    count > 0 ? crackers.reduce((sum, c) => sum + c.rank, 0) / count : 0;
   const top =
-    count > 0
-      ? [...crackers].sort((a, b) => b.rank - a.rank)[0]
-      : undefined;
+    count > 0 ? [...crackers].sort((a, b) => b.rank - a.rank)[0] : undefined;
 
   return (
     <div className="grid gap-3 sm:grid-cols-3">
@@ -24,7 +20,7 @@ export function StatsBar({ crackers }: Props) {
       <StatCard
         label="Top of the stack"
         value={top?.name ?? "—"}
-        suffix={top ? `${top.rank.toFixed(1)}` : undefined}
+        suffix={top ? top.rank.toFixed(1) : undefined}
         mono={false}
       />
     </div>
@@ -53,9 +49,7 @@ function StatCard({
         >
           {value}
         </div>
-        {suffix && (
-          <div className="text-sm text-cracker-500">{suffix}</div>
-        )}
+        {suffix && <div className="text-sm text-cracker-500">{suffix}</div>}
       </div>
     </div>
   );
