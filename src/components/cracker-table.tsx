@@ -9,10 +9,11 @@ import { RankBadge } from "./rank-badge";
 
 type Props = {
   crackers: readonly Cracker[];
+  isLoading?: boolean;
   onDelete: (id: string) => void;
 };
 
-export function CrackerTable({ crackers, onDelete }: Props) {
+export function CrackerTable({ crackers, isLoading, onDelete }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [query, setQuery] = useState("");
@@ -39,12 +40,14 @@ export function CrackerTable({ crackers, onDelete }: Props) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name or notes..."
+          placeholder="Search by name or notes…"
           className="w-full rounded-lg border border-cracker-200 bg-white/90 px-3 py-1.5 text-sm text-cracker-900 placeholder:text-cracker-300 focus:border-cracker-500 focus:outline-none focus:ring-2 focus:ring-cracker-300 sm:w-72"
         />
       </div>
 
-      {crackers.length === 0 ? (
+      {isLoading ? (
+        <CrackerTableSkeleton />
+      ) : crackers.length === 0 ? (
         <EmptyState />
       ) : visible.length === 0 ? (
         <div className="p-10 text-center text-sm text-cracker-500">
@@ -83,7 +86,7 @@ export function CrackerTable({ crackers, onDelete }: Props) {
               {visible.map((c) => (
                 <tr key={c.id} className="transition hover:bg-cracker-50/60">
                   <td className="px-4 py-3">
-                    <Thumb src={c.imageDataUrl} alt={c.name} />
+                    <Thumb src={c.imageUrl} alt={c.name} />
                   </td>
                   <td className="px-4 py-3 font-medium text-cracker-900">
                     {c.name}
@@ -155,7 +158,7 @@ function Thumb({ src, alt }: { src?: string; alt: string }) {
   if (!src) {
     return (
       <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-cracker-100 text-lg text-cracker-400">
-        ·
+        🍘
       </div>
     );
   }
@@ -172,11 +175,66 @@ function Thumb({ src, alt }: { src?: string; alt: string }) {
   );
 }
 
+export function CrackerTableSkeleton() {
+  return (
+    <div className="scrollbar-thin overflow-x-auto">
+      <table className="w-full animate-pulse text-left text-sm">
+        <thead className="bg-cracker-50/60 text-xs uppercase tracking-wider text-cracker-600">
+          <tr>
+            <th className="w-20 px-4 py-3">Photo</th>
+            <th className="px-4 py-3">
+              <span className="inline-flex items-center gap-1">
+                Name <span className="text-[10px] opacity-20">▼</span>
+              </span>
+            </th>
+            <th className="px-4 py-3 text-center">
+              <span className="inline-flex items-center gap-1">
+                Rank <span className="text-[10px] opacity-20">▼</span>
+              </span>
+            </th>
+            <th className="px-4 py-3">Notes</th>
+            <th className="px-4 py-3">
+              <span className="inline-flex items-center gap-1">
+                Added <span className="text-[10px] opacity-20">▼</span>
+              </span>
+            </th>
+            <th className="w-16 px-4 py-3" />
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-cracker-100">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <tr key={i}>
+              <td className="px-4 py-3">
+                <div className="h-12 w-12 rounded-lg bg-cracker-100" />
+              </td>
+              <td className="px-4 py-3 font-medium">
+                <div className="h-3.5 w-28 rounded bg-cracker-100" />
+              </td>
+              <td className="px-4 py-3 text-center">
+                <div className="mx-auto h-[26px] w-12 rounded-md bg-cracker-100 ring-1 ring-cracker-200" />
+              </td>
+              <td className="max-w-xs px-4 py-3">
+                <div className="h-3 w-48 rounded bg-cracker-50" />
+              </td>
+              <td className="whitespace-nowrap px-4 py-3">
+                <div className="h-3 w-20 rounded bg-cracker-50" />
+              </td>
+              <td className="px-4 py-3 text-right">
+                <div className="ml-auto h-6 w-12 rounded-md bg-cracker-50" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function EmptyState() {
   return (
     <div className="p-12 text-center">
       <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-cracker-100 text-2xl">
-        ·
+        🍘
       </div>
       <p className="text-sm font-medium text-cracker-700">No crackers yet.</p>
       <p className="mt-1 text-sm text-cracker-500">

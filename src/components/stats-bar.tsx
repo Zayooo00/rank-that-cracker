@@ -27,6 +27,22 @@ export function StatsBar({ crackers }: Props) {
   );
 }
 
+export function StatsBarSkeleton() {
+  return (
+    <div className="grid gap-3 sm:grid-cols-3">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="animate-pulse rounded-2xl bg-white/70 p-4 shadow-soft ring-1 ring-cracker-200/70"
+        >
+          <div className="h-3 w-24 rounded bg-cracker-100" />
+          <div className="mt-3 h-7 w-16 rounded bg-cracker-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function StatCard({
   label,
   value,
