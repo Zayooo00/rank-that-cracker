@@ -14,7 +14,7 @@ export async function SiteHeader() {
           href="/"
           className="text-sm font-bold tracking-tight text-cracker-900 hover:text-cracker-700"
         >
-          Rank That Cracker
+          🍘 Rank That Cracker
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">
