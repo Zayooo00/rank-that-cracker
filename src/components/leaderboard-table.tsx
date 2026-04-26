@@ -22,7 +22,7 @@ export function LeaderboardTable({ entries }: Props) {
             <tr>
               <th className="w-12 px-4 py-3 text-center">#</th>
               <th className="w-full px-4 py-3">Cracker</th>
-              <th className="w-32 px-4 py-3 text-center">Avg rank</th>
+              <th className="w-32 whitespace-nowrap px-4 py-3 text-center">Avg rank</th>
               <th className="w-24 px-4 py-3 text-center">Votes</th>
             </tr>
           </thead>
