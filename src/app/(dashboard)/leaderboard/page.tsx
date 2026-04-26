@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LeaderboardTable } from "@/components/leaderboard-table";
 import { useLocale } from "@/components/locale-provider";
+import { LeaderboardTable } from "./components/leaderboard-table";
 import { fetchLeaderboard } from "@/lib/crackers";
 import type { LeaderboardEntry } from "@/lib/schema";
 

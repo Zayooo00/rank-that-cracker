@@ -1,9 +1,9 @@
 "use client";
 
-import { AddCrackerForm } from "@/components/add-cracker-form";
-import { CrackerTable } from "@/components/cracker-table";
 import { useLocale } from "@/components/locale-provider";
-import { StatsBar, StatsBarSkeleton } from "@/components/stats-bar";
+import { AddCrackerForm } from "./components/add-cracker-form";
+import { CrackerTable } from "./components/cracker-table";
+import { StatsBar, StatsBarSkeleton } from "./components/stats-bar";
 import { useCrackers } from "@/hooks/use-crackers";
 
 export default function DashboardPage() {
