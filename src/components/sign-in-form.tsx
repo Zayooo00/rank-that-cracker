@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
+import { useLocale } from "./locale-provider";
 
 const signInSchema = z.object({
   email: z.string().trim().email("Invalid email address"),
@@ -12,9 +13,10 @@ const signInSchema = z.object({
 });
 
 export function SignInForm() {
+  const { t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/";
+  const next = searchParams.get("next") ?? "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,19 +58,23 @@ export function SignInForm() {
         redirectTo: `${window.location.origin}/auth/callback?next=${next}`,
       },
     });
-    if (authError) setError(authError.message);
+    if (authError) {
+      setError(authError.message);
+    }
   }
 
   return (
     <div className="w-full max-w-sm">
-      <h1 className="mb-1 text-2xl font-bold text-cracker-900">Sign in</h1>
+      <h1 className="mb-1 text-2xl font-bold text-cracker-900">
+        {t.signIn.title}
+      </h1>
       <p className="mb-6 text-sm text-cracker-500">
-        Don&apos;t have an account?{" "}
+        {t.signIn.noAccount}{" "}
         <Link
           href="/sign-up"
           className="font-medium text-cracker-700 underline hover:text-cracker-900"
         >
-          Sign up
+          {t.signIn.signUpLink}
         </Link>
       </p>
 
@@ -78,7 +84,7 @@ export function SignInForm() {
         className="mb-4 flex w-full items-center justify-center gap-3 rounded-lg border border-cracker-200 bg-white px-4 py-2.5 text-sm font-medium text-cracker-800 shadow-sm transition hover:bg-cracker-50 active:scale-[0.98]"
       >
         <GoogleIcon />
-        Continue with Google
+        {t.signIn.continueGoogle}
       </button>
 
       <div className="relative my-5">
@@ -87,7 +93,7 @@ export function SignInForm() {
         </div>
         <div className="relative flex justify-center text-xs">
           <span className="bg-cracker-50 px-2 text-cracker-400">
-            or with email
+            {t.signIn.orEmail}
           </span>
         </div>
       </div>
@@ -95,7 +101,7 @@ export function SignInForm() {
       <form onSubmit={handleEmailSignIn} className="space-y-4">
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-cracker-700">
-            Email
+            {t.signIn.email}
           </span>
           <input
             type="email"
@@ -109,7 +115,7 @@ export function SignInForm() {
 
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-cracker-700">
-            Password
+            {t.signIn.password}
           </span>
           <input
             type="password"
@@ -132,7 +138,7 @@ export function SignInForm() {
           disabled={busy}
           className="w-full rounded-lg bg-cracker-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cracker-700 active:scale-[0.98] disabled:opacity-60"
         >
-          {busy ? "Signing in…" : "Sign in"}
+          {busy ? t.signIn.signingIn : t.signIn.submit}
         </button>
       </form>
     </div>

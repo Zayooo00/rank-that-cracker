@@ -38,6 +38,25 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+
+  if (pathname === "/") {
+    const redirectUrl = request.nextUrl.clone();
+    if (user) {
+      redirectUrl.pathname = "/dashboard";
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    redirectUrl.pathname = "/sign-in";
+    redirectUrl.searchParams.set("next", "/dashboard");
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (user && (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up"))) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/dashboard";
+    return NextResponse.redirect(redirectUrl);
+  }
+
   const isPublic = PUBLIC_PATH_PREFIXES.some((prefix) =>
     pathname.startsWith(prefix),
   );
