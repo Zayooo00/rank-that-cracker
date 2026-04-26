@@ -16,6 +16,7 @@ body {
 html {
   scrollbar-gutter: stable;
   scrollbar-width: thin;
+  scrollbar-color: rgba(182, 100, 34, 0.4) transparent;
   background:
     radial-gradient(
       1200px 600px at 90% -10%,
