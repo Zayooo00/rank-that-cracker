@@ -1,45 +1,53 @@
 "use client";
 
 import useSWR from "swr";
-import { crackerInputSchema, type Cracker } from "@/lib/schema";
-import { loadCrackers, newId, saveCrackers } from "@/lib/storage";
-
-const SWR_KEY = "crackers";
+import { createClient } from "@/lib/supabase/client";
+import { fetchCrackers, insertCracker, removeCracker } from "@/lib/crackers";
+import { crackerInputSchema } from "@/lib/schema";
 
 type AddResult = { ok: true } | { ok: false; error: string };
 
 export function useCrackers() {
-  const { data, isLoading, mutate } = useSWR<Cracker[]>(
-    SWR_KEY,
-    () => loadCrackers(),
-    { revalidateOnFocus: false, fallbackData: [] },
+  const { data: crackers = [], isLoading, mutate } = useSWR(
+    "crackers",
+    fetchCrackers,
+    { revalidateOnFocus: false },
   );
-
-  const crackers = data ?? [];
 
   async function addCracker(input: unknown): Promise<AddResult> {
     const parsed = crackerInputSchema.safeParse(input);
     if (!parsed.success) {
       return {
         ok: false,
-        error: parsed.error.issues[0]?.message ?? "Invalid cracker",
+        error: parsed.error.issues[0]?.message ?? "Invalid input",
       };
     }
-    const cracker: Cracker = {
-      ...parsed.data,
-      id: newId(),
-      createdAt: Date.now(),
-    };
-    const next = [cracker, ...crackers];
-    saveCrackers(next);
-    await mutate(next, { revalidate: false });
-    return { ok: true };
+
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { ok: false, error: "Not signed in" };
+    }
+
+    try {
+      const cracker = await insertCracker(parsed.data, user.id);
+      await mutate((prev = []) => [cracker, ...prev], { revalidate: false });
+      return { ok: true };
+    } catch (err) {
+      return {
+        ok: false,
+        error: err instanceof Error ? err.message : "Failed to save cracker",
+      };
+    }
   }
 
   async function deleteCracker(id: string): Promise<void> {
-    const next = crackers.filter((c) => c.id !== id);
-    saveCrackers(next);
-    await mutate(next, { revalidate: false });
+    await mutate((prev = []) => prev.filter((c) => c.id !== id), {
+      revalidate: false,
+    });
+    await removeCracker(id);
   }
 
   return { crackers, isLoading, addCracker, deleteCracker };

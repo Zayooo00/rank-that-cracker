@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import type { CrackerInput } from "@/lib/schema";
-import { fileToDataUrl } from "@/lib/storage";
 
 type Props = {
   onAdd: (
@@ -15,35 +14,28 @@ export function AddCrackerForm({ onAdd }: Props) {
   const [name, setName] = useState("");
   const [rank, setRank] = useState(7);
   const [notes, setNotes] = useState("");
-  const [imageDataUrl, setImageDataUrl] = useState<string | undefined>();
+  const [imageFile, setImageFile] = useState<File | undefined>();
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
-    setError(null);
-    try {
-      setBusy(true);
-      const url = await fileToDataUrl(file);
-      setImageDataUrl(url);
-    } catch {
-      setError("Couldn't read that image. Try a JPG or PNG.");
-    } finally {
-      setBusy(false);
+  function handleFile(file: File | undefined) {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (!file) {
+      setImageFile(undefined);
+      setPreviewUrl(undefined);
+      return;
     }
+    setImageFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setBusy(true);
-    const result = await onAdd({
-      name,
-      rank,
-      notes: notes.trim() || undefined,
-      imageDataUrl,
-    });
+    const result = await onAdd({ name, rank, notes: notes.trim() || undefined, imageFile });
     setBusy(false);
 
     if (!result.ok) {
@@ -54,7 +46,7 @@ export function AddCrackerForm({ onAdd }: Props) {
     setName("");
     setRank(7);
     setNotes("");
-    setImageDataUrl(undefined);
+    handleFile(undefined);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -124,9 +116,9 @@ export function AddCrackerForm({ onAdd }: Props) {
 
         <div className="flex flex-col items-center gap-3">
           <div className="relative h-32 w-32 overflow-hidden rounded-xl border-2 border-dashed border-cracker-300 bg-cracker-50">
-            {imageDataUrl ? (
+            {previewUrl ? (
               <Image
-                src={imageDataUrl}
+                src={previewUrl}
                 alt="Preview"
                 fill
                 sizes="128px"
@@ -144,13 +136,13 @@ export function AddCrackerForm({ onAdd }: Props) {
             type="file"
             accept="image/*"
             onChange={(e) => handleFile(e.target.files?.[0])}
-            className="block w-50 text-xs text-cracker-600 file:mr-2 file:cursor-pointer file:rounded-md file:border-0 file:bg-cracker-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-cracker-800 hover:file:bg-cracker-200"
+            className="block w-42 text-xs text-cracker-600 file:mr-2 file:cursor-pointer file:rounded-md file:border-0 file:bg-cracker-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-cracker-800 hover:file:bg-cracker-200"
           />
-          {imageDataUrl && (
+          {previewUrl && (
             <button
               type="button"
               onClick={() => {
-                setImageDataUrl(undefined);
+                handleFile(undefined);
                 if (fileInputRef.current) fileInputRef.current.value = "";
               }}
               className="text-xs text-cracker-600 underline hover:text-cracker-800"
@@ -173,7 +165,7 @@ export function AddCrackerForm({ onAdd }: Props) {
           disabled={busy}
           className="rounded-lg bg-cracker-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-cracker-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {busy ? "Saving..." : "Add cracker"}
+          {busy ? "Saving…" : "Add cracker"}
         </button>
       </div>
     </form>
