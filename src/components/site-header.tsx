@@ -10,8 +10,8 @@ export function SiteNav({ email }: Props) {
   const { t } = useLocale();
 
   return (
-    <header className="border-b border-cracker-200/60 bg-white/60 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+    <header className="border-b px-4 py-3 border-cracker-200/60 bg-white/60 backdrop-blur">
+      <div className="mx-auto flex max-w-5xl items-center justify-between">
         <Link
           href="/dashboard"
           className="text-sm font-bold tracking-tight text-cracker-900 hover:text-cracker-700"
@@ -22,7 +22,7 @@ export function SiteNav({ email }: Props) {
         <nav className="flex items-center gap-2 text-sm">
           <Link
             href="/leaderboard"
-            className="text-cracker-600 transition hover:text-cracker-900 mr-1"
+            className="mr-1 hidden text-cracker-600 transition hover:text-cracker-900 sm:inline"
           >
             {t.nav.globalLeaderboard}
           </Link>
@@ -55,6 +55,15 @@ export function SiteNav({ email }: Props) {
             </Link>
           )}
         </nav>
+      </div>
+
+      <div className="mx-auto max-w-5xl sm:hidden">
+        <Link
+          href="/leaderboard"
+          className="text-sm text-cracker-600 transition hover:text-cracker-900"
+        >
+          {t.nav.globalLeaderboard}
+        </Link>
       </div>
     </header>
   );
