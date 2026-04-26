@@ -1,44 +1,48 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+"use client";
 
-export async function SiteHeader() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+import Link from "next/link";
+import { useLocale } from "./locale-provider";
+import { LanguageSwitcher } from "./language-switcher";
+
+type Props = { email: string | null };
+
+export function SiteNav({ email }: Props) {
+  const { t } = useLocale();
 
   return (
     <header className="border-b border-cracker-200/60 bg-white/60 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link
-          href="/"
+          href="/dashboard"
           className="text-sm font-bold tracking-tight text-cracker-900 hover:text-cracker-700"
         >
           🍘 Rank That Cracker
         </Link>
 
-        <nav className="flex items-center gap-4 text-sm">
+        <nav className="flex items-center gap-2 text-sm">
           <Link
             href="/leaderboard"
-            className="text-cracker-600 transition hover:text-cracker-900"
+            className="text-cracker-600 transition hover:text-cracker-900 mr-1"
           >
-            Global Leaderboard
+            {t.nav.globalLeaderboard}
           </Link>
 
-          {user ? (
+          <LanguageSwitcher />
+
+          {email ? (
             <>
               <div
                 className="flex h-7 w-7 items-center justify-center rounded-md bg-cracker-100 text-xs font-bold text-cracker-700 ring-1 ring-cracker-200"
-                title={user.email ?? undefined}
+                title={email}
               >
-                {(user.email ?? "?")[0].toUpperCase()}
+                {email[0].toUpperCase()}
               </div>
               <form action="/auth/sign-out" method="post">
                 <button
                   type="submit"
                   className="rounded-md border border-cracker-200 px-3 py-1.5 text-xs font-medium text-cracker-700 transition hover:bg-cracker-50"
                 >
-                  Sign out
+                  {t.nav.signOut}
                 </button>
               </form>
             </>
@@ -47,7 +51,7 @@ export async function SiteHeader() {
               href="/sign-in"
               className="rounded-md bg-cracker-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cracker-700"
             >
-              Sign in
+              {t.nav.signIn}
             </Link>
           )}
         </nav>

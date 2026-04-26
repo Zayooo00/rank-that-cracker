@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import type { Cracker, SortDir, SortKey } from "@/lib/schema";
 import { filterAndSortCrackers } from "@/lib/sort";
 import { formatDate } from "@/lib/time";
+import { useLocale } from "./locale-provider";
 import { RankBadge } from "./rank-badge";
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export function CrackerTable({ crackers, isLoading, onDelete }: Props) {
+  const { t } = useLocale();
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [query, setQuery] = useState("");
@@ -35,12 +37,14 @@ export function CrackerTable({ crackers, isLoading, onDelete }: Props) {
   return (
     <div className="rounded-2xl bg-white/80 shadow-soft ring-1 ring-cracker-200 backdrop-blur">
       <div className="flex flex-col gap-3 border-b border-cracker-100 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-cracker-800">The rankings</h2>
+        <h2 className="text-lg font-semibold text-cracker-800">
+          {t.table.title}
+        </h2>
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name or notes…"
+          placeholder={t.table.searchPlaceholder}
           className="w-full rounded-lg border border-cracker-200 bg-white/90 px-3 py-1.5 text-sm text-cracker-900 placeholder:text-cracker-300 focus:border-cracker-500 focus:outline-none focus:ring-2 focus:ring-cracker-300 sm:w-72"
         />
       </div>
@@ -51,30 +55,30 @@ export function CrackerTable({ crackers, isLoading, onDelete }: Props) {
         <EmptyState />
       ) : visible.length === 0 ? (
         <div className="p-10 text-center text-sm text-cracker-500">
-          No crackers match &ldquo;{query}&rdquo;.
+          {t.table.noMatch.replace("{query}", query)}
         </div>
       ) : (
         <div className="scrollbar-thin overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-cracker-50/60 text-xs uppercase tracking-wider text-cracker-600">
               <tr>
-                <th className="w-20 px-4 py-3">Photo</th>
+                <th className="w-20 px-4 py-3">{t.table.photo}</th>
                 <SortHeader
-                  label="Name"
+                  label={t.table.name}
                   active={sortKey === "name"}
                   dir={sortDir}
                   onClick={() => toggleSort("name")}
                 />
                 <SortHeader
-                  label="Rank"
+                  label={t.table.rank}
                   active={sortKey === "rank"}
                   dir={sortDir}
                   onClick={() => toggleSort("rank")}
                   align="center"
                 />
-                <th className="px-4 py-3">Notes</th>
+                <th className="px-4 py-3">{t.table.notes}</th>
                 <SortHeader
-                  label="Added"
+                  label={t.table.added}
                   active={sortKey === "createdAt"}
                   dir={sortDir}
                   onClick={() => toggleSort("createdAt")}
@@ -104,9 +108,9 @@ export function CrackerTable({ crackers, isLoading, onDelete }: Props) {
                     <button
                       onClick={() => onDelete(c.id)}
                       className="rounded-md px-2 py-1 text-xs font-medium text-cracker-500 transition hover:bg-red-50 hover:text-red-600"
-                      aria-label={`Delete ${c.name}`}
+                      aria-label={`${t.table.delete} ${c.name}`}
                     >
-                      Delete
+                      {t.table.delete}
                     </button>
                   </td>
                 </tr>
@@ -231,15 +235,14 @@ export function CrackerTableSkeleton() {
 }
 
 function EmptyState() {
+  const { t } = useLocale();
   return (
     <div className="p-12 text-center">
       <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-cracker-100 text-2xl">
         🍘
       </div>
-      <p className="text-sm font-medium text-cracker-700">No crackers yet.</p>
-      <p className="mt-1 text-sm text-cracker-500">
-        Use the form above to add your first.
-      </p>
+      <p className="text-sm font-medium text-cracker-700">{t.table.noYet}</p>
+      <p className="mt-1 text-sm text-cracker-500">{t.table.noYetSub}</p>
     </div>
   );
 }

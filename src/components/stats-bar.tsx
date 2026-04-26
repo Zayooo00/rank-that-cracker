@@ -1,8 +1,10 @@
 import type { Cracker } from "@/lib/schema";
+import { useLocale } from "./locale-provider";
 
 type Props = { crackers: readonly Cracker[] };
 
 export function StatsBar({ crackers }: Props) {
+  const { t } = useLocale();
   const count = crackers.length;
   const avg =
     count > 0 ? crackers.reduce((sum, c) => sum + c.rank, 0) / count : 0;
@@ -11,14 +13,14 @@ export function StatsBar({ crackers }: Props) {
 
   return (
     <div className="grid gap-3 sm:grid-cols-3">
-      <StatCard label="Crackers ranked" value={count.toString()} />
+      <StatCard label={t.stats.crackersRanked} value={count.toString()} />
       <StatCard
-        label="Average rank"
+        label={t.stats.averageRank}
         value={count > 0 ? avg.toFixed(2) : "—"}
         suffix={count > 0 ? "/ 10" : undefined}
       />
       <StatCard
-        label="Top of the stack"
+        label={t.stats.topOfStack}
         value={top?.name ?? "—"}
         suffix={top ? top.rank.toFixed(1) : undefined}
         mono={false}

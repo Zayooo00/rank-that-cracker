@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
+import { useLocale } from "./locale-provider";
 
 const signUpSchema = z.object({
   email: z.string().trim().email("Invalid email address"),
@@ -11,6 +12,7 @@ const signUpSchema = z.object({
 });
 
 export function SignUpForm() {
+  const { t } = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +52,9 @@ export function SignUpForm() {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    if (authError) setError(authError.message);
+    if (authError) {
+      setError(authError.message);
+    }
   }
 
   if (done) {
@@ -58,11 +62,10 @@ export function SignUpForm() {
       <div className="w-full max-w-sm text-center">
         <div className="mb-4 text-4xl">✉️</div>
         <h2 className="mb-2 text-xl font-bold text-cracker-900">
-          Check your inbox
+          {t.signUp.checkInboxTitle}
         </h2>
         <p className="text-sm text-cracker-600">
-          We sent a confirmation link to <strong>{email}</strong>. Click it to
-          activate your account and start ranking.
+          {t.signUp.checkInboxBody.replace("{email}", email)}
         </p>
       </div>
     );
@@ -71,15 +74,15 @@ export function SignUpForm() {
   return (
     <div className="w-full max-w-sm">
       <h1 className="mb-1 text-2xl font-bold text-cracker-900">
-        Create account
+        {t.signUp.title}
       </h1>
       <p className="mb-6 text-sm text-cracker-500">
-        Already have one?{" "}
+        {t.signUp.haveAccount}{" "}
         <Link
           href="/sign-in"
           className="font-medium text-cracker-700 underline hover:text-cracker-900"
         >
-          Sign in
+          {t.signUp.signInLink}
         </Link>
       </p>
 
@@ -89,7 +92,7 @@ export function SignUpForm() {
         className="mb-4 flex w-full items-center justify-center gap-3 rounded-lg border border-cracker-200 bg-white px-4 py-2.5 text-sm font-medium text-cracker-800 shadow-sm transition hover:bg-cracker-50 active:scale-[0.98]"
       >
         <GoogleIcon />
-        Continue with Google
+        {t.signUp.continueGoogle}
       </button>
 
       <div className="relative my-5">
@@ -98,7 +101,7 @@ export function SignUpForm() {
         </div>
         <div className="relative flex justify-center text-xs">
           <span className="bg-cracker-50 px-2 text-cracker-400">
-            or with email
+            {t.signUp.orEmail}
           </span>
         </div>
       </div>
@@ -106,7 +109,7 @@ export function SignUpForm() {
       <form onSubmit={handleEmailSignUp} className="space-y-4">
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-cracker-700">
-            Email
+            {t.signUp.email}
           </span>
           <input
             type="email"
@@ -120,7 +123,7 @@ export function SignUpForm() {
 
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-cracker-700">
-            Password
+            {t.signUp.password}
           </span>
           <input
             type="password"
@@ -144,7 +147,7 @@ export function SignUpForm() {
           disabled={busy}
           className="w-full rounded-lg bg-cracker-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cracker-700 active:scale-[0.98] disabled:opacity-60"
         >
-          {busy ? "Creating account…" : "Create account"}
+          {busy ? t.signUp.creating : t.signUp.submit}
         </button>
       </form>
     </div>

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import type { CrackerInput } from "@/lib/schema";
+import { useLocale } from "./locale-provider";
 
 type Props = {
   onAdd: (
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export function AddCrackerForm({ onAdd }: Props) {
+  const { t } = useLocale();
   const [name, setName] = useState("");
   const [rank, setRank] = useState(7);
   const [notes, setNotes] = useState("");
@@ -21,7 +23,9 @@ export function AddCrackerForm({ onAdd }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleFile(file: File | undefined) {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
     if (!file) {
       setImageFile(undefined);
       setPreviewUrl(undefined);
@@ -35,7 +39,12 @@ export function AddCrackerForm({ onAdd }: Props) {
     e.preventDefault();
     setError(null);
     setBusy(true);
-    const result = await onAdd({ name, rank, notes: notes.trim() || undefined, imageFile });
+    const result = await onAdd({
+      name,
+      rank,
+      notes: notes.trim() || undefined,
+      imageFile,
+    });
     setBusy(false);
 
     if (!result.ok) {
@@ -47,7 +56,9 @@ export function AddCrackerForm({ onAdd }: Props) {
     setRank(7);
     setNotes("");
     handleFile(undefined);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }
 
   return (
@@ -56,20 +67,20 @@ export function AddCrackerForm({ onAdd }: Props) {
       className="rounded-2xl bg-white/80 p-6 shadow-soft ring-1 ring-cracker-200 backdrop-blur"
     >
       <h2 className="mb-4 text-lg font-semibold text-cracker-800">
-        Add a cracker
+        {t.form.title}
       </h2>
 
       <div className="grid gap-4 md:grid-cols-[1fr_auto]">
         <div className="space-y-4">
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-cracker-700">
-              Name
+              {t.form.name}
             </span>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Ritz Original"
+              placeholder={t.form.namePlaceholder}
               className="w-full rounded-lg border border-cracker-200 bg-white/90 px-3 py-2 text-cracker-900 placeholder:text-cracker-300 focus:border-cracker-500 focus:outline-none focus:ring-2 focus:ring-cracker-300"
               maxLength={80}
               required
@@ -78,7 +89,7 @@ export function AddCrackerForm({ onAdd }: Props) {
 
           <label className="block">
             <span className="mb-1 flex items-center justify-between text-sm font-medium text-cracker-700">
-              <span>Rank</span>
+              <span>{t.form.rank}</span>
               <span className="rounded-md bg-cracker-100 px-2 py-0.5 font-mono text-cracker-800">
                 {rank.toFixed(1)} / 10
               </span>
@@ -93,21 +104,23 @@ export function AddCrackerForm({ onAdd }: Props) {
               className="w-full accent-cracker-500"
             />
             <div className="mt-1 flex justify-between text-xs text-cracker-400">
-              <span>meh</span>
-              <span>legendary</span>
+              <span>{t.form.meh}</span>
+              <span>{t.form.legendary}</span>
             </div>
           </label>
 
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-cracker-700">
-              Notes{" "}
-              <span className="font-normal text-cracker-400">(optional)</span>
+              {t.form.notes}{" "}
+              <span className="font-normal text-cracker-400">
+                {t.form.notesOptional}
+              </span>
             </span>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              placeholder="Buttery, crumbly, dangerously snackable."
+              placeholder={t.form.notesSub}
               className="w-full resize-none rounded-lg border border-cracker-200 bg-white/90 px-3 py-2 text-cracker-900 placeholder:text-cracker-300 focus:border-cracker-500 focus:outline-none focus:ring-2 focus:ring-cracker-300"
               maxLength={240}
             />
@@ -127,7 +140,7 @@ export function AddCrackerForm({ onAdd }: Props) {
               />
             ) : (
               <div className="flex h-full items-center justify-center text-center text-xs text-cracker-400">
-                No photo yet
+                {t.form.noPhoto}
               </div>
             )}
           </div>
@@ -143,11 +156,13 @@ export function AddCrackerForm({ onAdd }: Props) {
               type="button"
               onClick={() => {
                 handleFile(undefined);
-                if (fileInputRef.current) fileInputRef.current.value = "";
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                }
               }}
               className="text-xs text-cracker-600 underline hover:text-cracker-800"
             >
-              Remove image
+              {t.form.removeImage}
             </button>
           )}
         </div>
@@ -165,7 +180,7 @@ export function AddCrackerForm({ onAdd }: Props) {
           disabled={busy}
           className="rounded-lg bg-cracker-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-cracker-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {busy ? "Saving…" : "Add cracker"}
+          {busy ? t.form.saving : t.form.add}
         </button>
       </div>
     </form>
