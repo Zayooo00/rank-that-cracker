@@ -9,7 +9,7 @@ export function LanguageSwitcher() {
     <button
       type="button"
       onClick={() => setLocale(locale === "en" ? "pl" : "en")}
-      className="rounded-md border border-cracker-200 px-2 py-1 min-h-7 text-xs font-semibold text-cracker-600 transition hover:bg-cracker-50"
+      className="min-h-7 rounded-md border border-cracker-200 px-2 py-1 text-xs font-semibold text-cracker-600 transition hover:bg-cracker-50"
       aria-label="Switch language"
     >
       {locale === "en" ? "PL" : "EN"}
